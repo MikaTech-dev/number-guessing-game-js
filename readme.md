@@ -47,7 +47,7 @@ This is a fun, interactive number guessing game designed for you and your friend
 6. **Guess the Number**: Players try to guess the secret number within 3 attempts
 7. **Receive Smart Hints**: Get temperature and directional feedback after each guess
 8. **Win or Time Out**: Game ends when someone wins or time expires
-9. **Next Round**: Players can vote to stop or continue, if continue, next playr becomes game master.
+9. **Next Round**: Players can vote to stop or continue, if continue, next player becomes game master.
 
 ## 📜 Game Rules
 

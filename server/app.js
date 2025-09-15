@@ -119,7 +119,7 @@ app.get('/api/sessions/:id', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Connect to DB then start the server
-connectDB().then(() => {
+connectDB(PORT).then(() => {
   server.listen(PORT, () => console.log(`💻 Server & Socket.IO listening on http://localhost:${PORT}`));
 }).catch(err => {
   console.error("🚫Failed to connect to the database:", err);

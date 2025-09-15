@@ -1,5 +1,10 @@
 {
+  "name": "guessing-game",
+  "scripts": {
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev"
+  },
   "devDependencies": {
-    "eslint": "^9.35.0"
+    "@eslint/js": "^9.35.0"
   }
 }

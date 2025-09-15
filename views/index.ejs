@@ -1,0 +1,344 @@
+<!-- Emulating what the end-goal should look like -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Number Guessing Game</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .hidden { display: none; }
+        #statusMessage { color: red; margin-top: 10px; }
+        #gameMessages { height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .message { margin: 5px 0; }
+        .system { color: blue; font-weight: bold; }
+        .chat { color: green; }
+        .chat-itself { font-weight: 600; }
+        .guess-result { color: orange; }
+        .win { color: purple; font-size: larger; }
+        .timeout { color: red; font-size: larger; }
+        input, select, button { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🎮 Number Guessing Game</h1>
+
+    <!-- 1. Initial Lobby (Username/Role Selection) -->
+    <div id="lobbySection">
+        <h2>Lobby</h2>
+        <input type="text" id="usernameInput" placeholder="Enter your name">
+        <select id="roleSelect">
+            <option value="player">Player</option>
+            <option value="gameMaster">Game Master</option>
+        </select>
+        <button id="joinButton">Join Lobby</button>
+        <div id="statusMessage"></div>
+    </div>
+
+    <!-- 2. Game Master Section (Create Session) -->
+    <div id="gmSection" class="hidden">
+        <h2>Game Master Dashboard</h2>
+        <p>Welcome, <span id="gmName"></span>!</p>
+        <label for="difficultySelect">Select Difficulty:</label>
+        <select id="difficultySelect">
+            <option value="easy">Easy (1-50)</option>
+            <option value="medium" selected>Medium (1-100)</option>
+            <option value="hard">Hard (1-500)</option>
+        </select>
+        <button id="createSessionButton">Create New Game Session</button>
+        <p>Your Session ID: <strong><span id="sessionIdDisplay"></span></strong></p>
+        <div id="gmStatusMessage"></div>
+        <h3>Players in Session:</h3>
+        <ul id="playerList"></ul>
+        <button id="startGameButton" disabled>Start Game (Need 2+ players)</button>
+    </div>
+
+    <!-- 3. Player Section (Join Session) -->
+    <div id="playerSection" class="hidden">
+        <h2>Player Dashboard</h2>
+        <p>Welcome, <span id="playerName"></span>!</p>
+        <label for="sessionIdInput">Enter Session ID:</label>
+        <input type="text" id="sessionIdInput" placeholder="e.g., A1B2C3">
+        <button id="joinSessionButton">Join Game Session</button>
+        <div id="playerStatusMessage"></div>
+        <h3>Players in Session:</h3>
+        <ul id="playerListPlayer"></ul>
+    </div>
+
+    <!-- 4. Game Room (Common for all players once game starts) -->
+    <div id="gameRoomSection" class="hidden">
+        <h2>Game Room</h2>
+        <p>Session: <strong><span id="gameRoomSessionId"></span></strong></p>
+        <p>Guess a number between <span id="numberRange"></span></p>
+        <p>Time Left: <span id="timer">60</span>s</p>
+        <div id="gameMessages"></div>
+        <input type="text" id="guessInput" placeholder="Enter your guess">
+        <button id="sendGuessButton">Send Guess</button>
+        <p>Attempts Left: <span id="attemptsLeft">3</span></p>
+        <div id="gameRoomStatus"></div>
+    </div>
+
+    <!-- Include Socket.IO client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let currentUser = null;
+        let currentSessionId = null;
+        let timerInterval = null;
+
+        // --- DOM Elements ---
+        const lobbySection = document.getElementById('lobbySection');
+        const gmSection = document.getElementById('gmSection');
+        const playerSection = document.getElementById('playerSection');
+        const gameRoomSection = document.getElementById('gameRoomSection');
+
+        const statusMessage = document.getElementById('statusMessage');
+        const gmStatusMessage = document.getElementById('gmStatusMessage');
+        const playerStatusMessage = document.getElementById('playerStatusMessage');
+        const gameRoomStatus = document.getElementById('gameRoomStatus');
+
+        const joinButton = document.getElementById('joinButton');
+        const createSessionButton = document.getElementById('createSessionButton');
+        const joinSessionButton = document.getElementById('joinSessionButton');
+        const startGameButton = document.getElementById('startGameButton');
+        const sendGuessButton = document.getElementById('sendGuessButton');
+
+        // --- Utility Functions ---
+        function showSection(sectionToShow) {
+            lobbySection.classList.add('hidden');
+            gmSection.classList.add('hidden');
+            playerSection.classList.add('hidden');
+            gameRoomSection.classList.add('hidden');
+            sectionToShow.classList.remove('hidden');
+        }
+
+        function addMessage(containerId, message, className = '') {
+            const container = document.getElementById(containerId);
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            if (className) messageElement.classList.add(className);
+            messageElement.innerText = message;
+            container.appendChild(messageElement);
+            container.scrollTop = container.scrollHeight; // Auto-scroll
+        }
+
+        function updatePlayerList(listElementId, players) {
+            const listElement = document.getElementById(listElementId);
+            listElement.innerHTML = ''; // Clear list
+            players.forEach(player => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${player.username} (Score: ${player.score}, Attempts: ${player.attemptsLeft})`;
+                listElement.appendChild(listItem);
+            });
+        }
+
+        // --- 1. Initial Lobby Logic ---
+        joinButton.addEventListener('click', () => {
+            const username = document.getElementById('usernameInput').value.trim();
+            const role = document.getElementById('roleSelect').value;
+
+            if (!username) {
+                statusMessage.innerText = "Please enter a username.";
+                return;
+            }
+
+            socket.emit('setUser', { username, role });
+        });
+
+        socket.on('userSet', (data) => {
+            currentUser = data;
+            console.log("User set successfully:", data);
+            statusMessage.innerText = `Welcome, ${data.username} (${data.role})!`;
+
+            if (data.role === 'gameMaster') {
+                document.getElementById('gmName').innerText = data.username;
+                showSection(gmSection);
+            } else if (data.role === 'player') {
+                document.getElementById('playerName').innerText = data.username;
+                showSection(playerSection);
+            }
+        });
+
+        // --- 2. Game Master Logic ---
+        createSessionButton.addEventListener('click', () => {
+            const difficulty = document.getElementById('difficultySelect').value;
+            socket.emit('createSession', { difficulty });
+        });
+
+        socket.on('sessionCreated', (data) => {
+            currentSessionId = data.sessionId;
+            console.log("Session created:", data);
+            document.getElementById('sessionIdDisplay').innerText = data.sessionId;
+            document.getElementById('gmStatusMessage').innerText = "Session created! Share the ID with players.";
+            
+            // Update player list
+            updatePlayerList('playerList', data.players);
+
+            // Enable start button if enough players
+            startGameButton.disabled = data.players.length < 2;
+        });
+
+        startGameButton.addEventListener('click', () => {
+             if (currentSessionId) {
+                 socket.emit('startGame', { sessionId: currentSessionId });
+             }
+        });
+
+        // --- 3. Player Logic ---
+        joinSessionButton.addEventListener('click', () => {
+            const sessionId = document.getElementById('sessionIdInput').value.trim();
+            if (!sessionId) {
+                playerStatusMessage.innerText = "Please enter a Session ID.";
+                return;
+            }
+            socket.emit('joinSession', { sessionId });
+        });
+
+        socket.on('sessionJoined', (data) => {
+            currentSessionId = data.sessionId;
+            console.log("Session joined:", data);
+            playerStatusMessage.innerText = "Joined session successfully!";
+            updatePlayerList('playerListPlayer', data.players);
+            // Wait for game to start...
+        });
+
+        // --- 4. Common Session Updates (for GM and Players waiting) ---
+        socket.on('playerJoined', (data) => {
+            console.log("Player joined session:", data);
+            // Update player lists on both GM and Player views
+            const gmPlayerList = document.getElementById('playerList');
+            const playerPlayerList = document.getElementById('playerListPlayer');
+            if (gmPlayerList) {
+                // Assume the payload includes the updated full list or we refetch
+                // For simplicity, let's assume `data.players` is sent
+                if (data.players) {
+                     updatePlayerList('playerList', data.players);
+                     // Enable start button for GM if enough players
+                     startGameButton.disabled = data.players.length < 2;
+                } else {
+                    // If only new player is sent, append
+                    // This requires more complex handling on backend to send full list
+                    // Simpler: backend sends full updated list with 'playerJoined'
+                    // addMessage('gameMessages', `${data.player.username} joined the game.`, 'system');
+                }
+            }
+            if (playerPlayerList && data.players) {
+                updatePlayerList('playerListPlayer', data.players);
+            }
+        });
+
+        // --- 5. Game Start Logic ---
+        socket.on('gameStarted', (data) => {
+            console.log("Game started:", data);
+            document.getElementById('gameRoomSessionId').innerText = currentSessionId;
+            document.getElementById('numberRange').innerText = `${data.secretNumberRange.min} - ${data.secretNumberRange.max}`;
+            
+            // Show game room
+            showSection(gameRoomSection);
+            
+            addMessage('gameMessages', "🏁 Game Started! Good luck!", 'system');
+            
+            // Start timer
+            let timeLeft = 60; // Default or get from data.roundEndTime
+            if (data.roundEndTime) {
+                 const endTime = new Date(data.roundEndTime).getTime();
+                 const now = new Date().getTime();
+                 timeLeft = Math.floor((endTime - now) / 1000);
+            }
+            document.getElementById('timer').innerText = timeLeft;
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        });
+
+        // --- 6. Gameplay Logic ---
+        sendGuessButton.addEventListener('click', () => {
+            const inputText = guessInput.value.trim();
+            if (!inputText || !currentSessionId) return;
+
+            // Check if input is a valid integer string (guess) or just text (chat) with regex validation
+            if (/^-?\d+$/.test(inputText)) { // Regex to check for integer string
+                // If it's a number, treat as guess
+                socket.emit('makeGuess', { sessionId: currentSessionId, guess: inputText });
+            } else {
+                // It's text, treat as chat message
+                socket.emit('sendChatMessage', { sessionId: currentSessionId, message: inputText });
+            }
+            guessInput.value = ''; // Clear input regardless
+        });
+        socket.on('chatMessageReceived', (data) => {
+            console.log("Chat message received:", data);
+            // Format the message for display
+            const formattedMessage = `${data.username}: ${data.message}`;
+            // Add it to the chatbox
+            console.log("Is this my message?:", data.isSelf)
+            const messageClass = data.isSelf ? "chat-self" : "chat"; // Use 'chat-self' if isSelf is true
+            addMessage('gameMessages', formattedMessage, messageClass); // Use 'chat' class
+
+        });
+
+        socket.on('guessResult', (data) => {
+            console.log("Guess result:", data);
+            if (data.isValid) {
+                if (data.isCorrect) {
+                    // This shouldn't happen here for the guesser, as 'gameWon' is emitted
+                    // But handle just in case
+                    addMessage('gameMessages', data.message, 'win');
+                } else {
+                    addMessage('gameMessages', data.message, 'guess-result');
+                    document.getElementById('attemptsLeft').innerText = data.attemptsLeft;
+                }
+            } else {
+                addMessage('gameMessages', data.message, 'system');
+            }
+        });
+
+        socket.on('playerGuessed', (data) => {
+            // Notify other players a guess was made (without revealing the guess)
+             addMessage('gameMessages', data.message, 'system');
+        });
+
+        // --- 7. Game End Logic ---
+         socket.on('gameWon', (data) => {
+            console.log("Game won:", data);
+            clearInterval(timerInterval);
+            addMessage('gameMessages', data.message, 'win');
+            // Optionally, show a "Game Over" screen or redirect to lobby
+            // For now, just stop interaction
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('sendGuessButton').disabled = true;
+            gameRoomStatus.innerText = "Game Over!";
+         });
+
+         socket.on('gameTimeout', (data) => {
+            console.log("Game timeout:", data);
+            clearInterval(timerInterval);
+            addMessage('gameMessages', `⏰ ${data.message} The number was ${data.secretNumber}.`, 'timeout');
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('sendGuessButton').disabled = true;
+            gameRoomStatus.innerText = "Game Over!";
+         });
+
+
+        // --- 8. Error Handling ---
+        socket.on('error', (data) => {
+            console.error("Server Error:", data.message);
+            // Display error message in the relevant section
+            if (gmSection.classList.contains('hidden') === false) {
+                gmStatusMessage.innerText = "Error: " + data.message;
+            } else if (playerSection.classList.contains('hidden') === false) {
+                playerStatusMessage.innerText = "Error: " + data.message;
+            } else if (gameRoomSection.classList.contains('hidden') === false) {
+                gameRoomStatus.innerText = "Error: " + data.message;
+            } else {
+                statusMessage.innerText = "Error: " + data.message;
+            }
+        });
+
+    </script>
+</body>
+</html>

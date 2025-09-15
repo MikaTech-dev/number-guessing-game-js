@@ -87,6 +87,6 @@ const gameSessionSchema = new mongoose.Schema({
 // Index for better query performance
 gameSessionSchema.index({ sessionId: 1,gameState: 1, gameMaster: 1 });
 
-const GameSession= mongoose.model("GameSession", gameSessionSchema)
+const GameSession= mongoose.model("GameSession", gameSessionSchema);
 
-export default GameSession
+export default GameSession;

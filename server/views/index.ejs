@@ -11,6 +11,7 @@
         .message { margin: 5px 0; }
         .system { color: blue; font-weight: bold; }
         .chat { color: green; }
+        .chat-itself { font-weight: 600; }
         .guess-result { color: orange; }
         .win { color: purple; font-size: larger; }
         .timeout { color: red; font-size: larger; }
@@ -256,10 +257,28 @@
 
         // --- 6. Gameplay Logic ---
         sendGuessButton.addEventListener('click', () => {
-            const guess = document.getElementById('guessInput').value.trim();
-            if (!guess || !currentSessionId) return;
-            socket.emit('makeGuess', { sessionId: currentSessionId, guess });
-            document.getElementById('guessInput').value = ''; // Clear input
+            const inputText = guessInput.value.trim();
+            if (!inputText || !currentSessionId) return;
+
+            // Check if input is a valid integer string (guess) or just text (chat) with regex validation
+            if (/^-?\d+$/.test(inputText)) { // Regex to check for integer string
+                // If it's a number, treat as guess
+                socket.emit('makeGuess', { sessionId: currentSessionId, guess: inputText });
+            } else {
+                // It's text, treat as chat message
+                socket.emit('sendChatMessage', { sessionId: currentSessionId, message: inputText });
+            }
+            guessInput.value = ''; // Clear input regardless
+        });
+        socket.on('chatMessageReceived', (data) => {
+            console.log("Chat message received:", data);
+            // Format the message for display
+            const formattedMessage = `${data.username}: ${data.message}`;
+            // Add it to the chatbox
+            console.log("Is this my message?:", data.isSelf)
+            const messageClass = data.isSelf ? "chat-self" : "chat"; // Use 'chat-self' if isSelf is true
+            addMessage('gameMessages', formattedMessage, messageClass); // Use 'chat' class
+
         });
 
         socket.on('guessResult', (data) => {

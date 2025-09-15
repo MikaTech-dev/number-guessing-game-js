@@ -266,7 +266,7 @@ const initializeSocket = (io) => {
       session.gameState = 'in-progress';
       session.startedAt = new Date();
       // Set timer (e.g., 60 seconds)
-      const ROUND_DURATION = 60000; // 60 seconds
+      const ROUND_DURATION = 120000; // 60 seconds
       session.roundEndTime = new Date(Date.now() + ROUND_DURATION);
 
       await session.save();
@@ -312,6 +312,56 @@ const initializeSocket = (io) => {
     } catch (error) {
       console.error("Error starting game:", error);
       socket.emit('error', { message: 'Failed to start game.' });
+    }
+  });
+
+    // --- Handle Sending Chat Messages ---
+  socket.on('sendChatMessage', async (data) => {
+    const userId = socketToUserMap.get(socket.id);
+    if (!userId) {
+      socket.emit('error', { message: 'User not set. Cannot send message.' });
+      return;
+    }
+
+    try {
+      const { sessionId, message } = data;
+      if (!message || typeof message !== 'string') {
+        socket.emit('error', { message: 'Invalid message format.' });
+        return;
+      }
+
+      // Find the user's name (could be passed in data or fetched)
+      const user = await User.findById(userId);
+      if (!user) {
+          socket.emit('error', { message: 'User not found.' });
+          return;
+      }
+
+      // Find the session to verify user is part of it
+      const session = await GameSession.findOne({ sessionId, 'players.playerId': userId });
+      if (!session) {
+          socket.emit('error', { message: 'Session not found or you are not part of this session.' });
+          return;
+      }
+
+      // Emit back to SENDER to show in their chat
+      socket.emit('chatMessageReceived', {
+        username: user.username,
+        message: message,
+        isSelf: true, // Flag to indicate it's the sender's own message
+        timestamp: new Date()
+      });
+      
+      // Broadcast the message to all OTHER players in the session
+      socket.to(sessionId).emit('chatMessageReceived', {
+        username: user.username,
+        message: message,
+        timestamp: new Date() // Optional: Add timestamp
+      });
+
+    } catch (error) {
+      console.error("Error sending chat message:", error);
+      socket.emit('error', { message: 'Failed to send message.' });
     }
   });
 

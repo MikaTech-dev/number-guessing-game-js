@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
   _id: false, // We'll use socketId as _id
   timestamps: true
 });
-userSchema.index({ sessionId:1, socketId:1 })
+userSchema.index({ sessionId:1, socketId:1 });
 
 const User = mongoose.model('User', userSchema);
-export default User
+export default User;

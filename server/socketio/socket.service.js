@@ -432,7 +432,7 @@ const initializeSocket = (io) => {
         // Broadcast to others that a guess was made (without revealing the guess or hints)
         socket.to(sessionId).emit('playerGuessed', {
           username: player.username,
-          message: `${player.username} made a guess...`
+          message: `${player.username} guessed wrongly- ${guessNum}.`
         });
       }
 

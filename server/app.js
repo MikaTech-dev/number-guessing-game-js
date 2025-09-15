@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import connectDB from './config/db.js';
-import sendResponse from './utils/sendResponse.js';
+import connectDB from '../config/db.js';
+import sendResponse from '../utils/sendResponse.js';
 import { config } from 'dotenv';
 import http from 'http';
 import { Server } from 'socket.io'; // Import Socket.IO Server here
-import { initializeSocket } from './socketio/socket.service.js'; // Import socket service
+import { initializeSocket } from '../socketio/socket.service.js'; // Import socket service
 import morgan from 'morgan';
 import path from 'path'; // Uncomment if serving static files
 import { fileURLToPath } from 'url'; // Uncomment if serving static files
@@ -127,5 +127,5 @@ connectDB(PORT).then(() => {
 });
 
 // Import models *after* server setup starts but before they are used in routes. This ensures Mongoose models are registered. 
-import User from './models/users.js';
-import GameSession from './models/gameSession.js';
+import User from '../models/users.js';
+import GameSession from '../models/gameSession.js';

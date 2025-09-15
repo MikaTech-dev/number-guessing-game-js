@@ -1,8 +1,8 @@
 // services/socket.service.js
 import { Server } from 'socket.io';
-import User from '../models/users.js';
-import GameSession from '../models/gameSession.js';
-import DIFFICULTY_CONFIG from '../utils/difficulty.js';
+import User from '../../models/users.js';
+import GameSession from '../../models/gameSession.js';
+import DIFFICULTY_CONFIG from '../../utils/difficulty.js';
 import { v4 as uuidv4 } from 'uuid';
 import {
   setUserSchema,
@@ -10,8 +10,8 @@ import {
   joinSessionSchema,
   startGameSchema,
   makeGuessSchema,
-} from '../socketio/socket.validator.js';
-import sendResponse from '../utils/sendResponse.js'; // For consistent error responses if needed
+} from './socket.validator.js';
+import sendResponse from '../../utils/sendResponse.js'; // For consistent error responses if needed
 
 // --- Store active sessions and players in memory for quick access ---
 // Consider using Redis for production scalability

@@ -394,7 +394,7 @@ const initializeSocket = (io) => {
       } else {
         // Generate hints
         const range = session.difficulty.maxRange - session.difficulty.minRange;
-        if (range > 0) { // Avoid division by zero
+        if (range > 0) { // Avoiding division by zero
             const difference = Math.abs(guessNum - session.secretNumber);
             const percentage = (difference / range) * 100;
 

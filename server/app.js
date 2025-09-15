@@ -32,9 +32,9 @@ initializeSocket(io);
 
 app.use(cors());
 app.use(express.json());
-app.use (morgan("tiny"))
+app.use (morgan("tiny"));
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'))
+app.set('views', path.join(__dirname, 'views'));
 // app.use(express.static(path.join(__dirname, 'public'))); // Serve static files if needed
 
 
@@ -42,7 +42,7 @@ app.set('views', path.join(__dirname, 'views'))
 // --- Routes ---
 app.get('/', (req, res) => {
 //   sendResponse(res, 200, "Welcome to the Number Guessing Game Lobby API");
-	res.render("index")
+	res.render("index");
 });
 
 // --- API Endpoint to Create User (Alternative to socket 'setUser') ---
@@ -118,15 +118,14 @@ app.get('/api/sessions/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Connect to DB and then start the server
+// Connect to DB then start the server
 connectDB().then(() => {
   server.listen(PORT, () => console.log(`💻 Server & Socket.IO listening on http://localhost:${PORT}`));
 }).catch(err => {
-  console.error("Failed to connect to the database:", err);
+  console.error("🚫Failed to connect to the database:", err);
   process.exit(1);
 });
 
-// Import models *after* server setup starts but before they are used in routes
-// This ensures Mongoose models are registered. Placing at the end is common.
+// Import models *after* server setup starts but before they are used in routes. This ensures Mongoose models are registered. 
 import User from './models/users.js';
 import GameSession from './models/gameSession.js';

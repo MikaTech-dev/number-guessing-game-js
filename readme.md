@@ -4,18 +4,13 @@ Of course. Here is the content formatted into a professional `README.md` file.
 
 # 🎯 Live Number Guessing Game
 
-\<div align="center"\>
-
 **A real-time multiplayer number guessing game with a chat-like interface where players compete to guess the correct number and earn points.**
 
-\</div\>
 
-<p align="center">
-  <img alt="License" src="https://img.shields.io/github/license/MikaTech-dev/number-guessing-game-js?style=for-the-badge" />
-  <img alt="Issues" src="https://img.shields.io/github/issues/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=important" />
-  <img alt="Forks" src="https://img.shields.io/github/forks/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=success" />
-  <img alt="Stars" src="https://img.shields.io/github/stars/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=yellow" />
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<img alt="Issues" src="https://img.shields.io/github/issues/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=important" />
+<img alt="Forks" src="https://img.shields.io/github/forks/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=success" />
+<img alt="Stars" src="https://img.shields.io/github/stars/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=yellow" />
 
 ## 📋 Table of Contents
 
@@ -370,4 +365,5 @@ The application will be accessible at `http://localhost:3000` (or your specified
   - `error`
 
       - **Purpose**: Sends error messages to the client for display.
+
       - **Payload**: `{ message: "string" }`

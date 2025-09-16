@@ -30,9 +30,13 @@ const io = new Server(server, {
 // Initialize Socket.IO logic by passing the `io` instance
 initializeSocket(io);
 
+morgan.token('client-ip', (req) => {
+  return req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+});
+
 app.use(cors());
 app.use(express.json());
-app.use (morgan("tiny"));
+app.use (morgan("':client-ip :method :url :status :response-time ms'"));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 // app.use(express.static(path.join(__dirname, 'public'))); // Serve static files if needed

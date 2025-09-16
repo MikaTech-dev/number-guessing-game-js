@@ -1,79 +1,455 @@
-<!-- Emulating what the end-goal should look like -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Number Guessing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .hidden { display: none; }
-        #statusMessage { color: red; margin-top: 10px; }
-        #gameMessages { height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-        .message { margin: 5px 0; }
-        .system { color: blue; font-weight: bold; }
-        .chat { color: green; }
-        .chat-itself { font-weight: 600; }
-        .guess-result { color: orange; }
-        .win { color: purple; font-size: larger; }
-        .timeout { color: red; font-size: larger; }
-        input, select, button { padding: 5px; margin: 5px; }
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header h1::before {
+            content: "🎮";
+        }
+
+        .section {
+            padding: 25px;
+            transition: var(--transition);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #d81159;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #3bb4d8;
+        }
+
+        .card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .session-id {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 2px;
+            background: var(--light-gray);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .player-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .player-list li {
+            padding: 10px 15px;
+            background: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .player-list li span {
+            font-weight: 500;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .info-item h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        #gameMessages {
+            height: 300px;
+            overflow-y: auto;
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            background: white;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .system {
+            background: var(--light-gray);
+            color: var(--dark);
+            margin: 0 auto;
+            text-align: center;
+            font-weight: 500;
+            max-width: 100%;
+        }
+
+        .chat {
+            background: #e9e8ea;
+            color: var(--dark);
+            align-self: flex-start;
+        }
+
+        .chat-self {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .guess-result {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .win {
+            background: #d4edda;
+            color: #155724;
+            font-weight: 700;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .timeout {
+            background: #f8d7da;
+            color: #721c24;
+            text-align: center;
+            max-width: 100%;
+        }
+
+        .guess-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .guess-form input {
+            flex: 1;
+        }
+
+        .status-message {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+            }
+            
+            .info-item {
+                width: 100%;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>🎮 Number Guessing Game</h1>
+    <div class="container">
+        <div class="header">
+            <h1>Number Guessing Game</h1>
+        </div>
 
-    <!-- 1. Initial Lobby (Username/Role Selection) -->
-    <div id="lobbySection">
-        <h2>Lobby</h2>
-        <input type="text" id="usernameInput" placeholder="Enter your name">
-        <select id="roleSelect">
-            <option value="player">Player</option>
-            <option value="gameMaster">Game Master</option>
-        </select>
-        <button id="joinButton">Join Lobby</button>
-        <div id="statusMessage"></div>
-    </div>
+        <!-- 1. Initial Lobby (Username/Role Selection) -->
+        <div id="lobbySection" class="section">
+            <h2 class="section-title">Lobby</h2>
+            <div class="form-group">
+                <label for="usernameInput">Your Name</label>
+                <input type="text" id="usernameInput" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label for="roleSelect">Your Role</label>
+                <select id="roleSelect">
+                    <option value="player">Player</option>
+                    <option value="gameMaster">Host</option>
+                </select>
+            </div>
+            <button id="joinButton" class="btn">Join Lobby</button>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
 
-    <!-- 2. Game Master Section (Create Session) -->
-    <div id="gmSection" class="hidden">
-        <h2>Game Master Dashboard</h2>
-        <p>Welcome, <span id="gmName"></span>!</p>
-        <label for="difficultySelect">Select Difficulty:</label>
-        <select id="difficultySelect">
-            <option value="easy">Easy (1-50)</option>
-            <option value="medium" selected>Medium (1-100)</option>
-            <option value="hard">Hard (1-500)</option>
-        </select>
-        <button id="createSessionButton">Create New Game Session</button>
-        <p>Your Session ID: <strong><span id="sessionIdDisplay"></span></strong></p>
-        <div id="gmStatusMessage"></div>
-        <h3>Players in Session:</h3>
-        <ul id="playerList"></ul>
-        <button id="startGameButton" disabled>Start Game (Need 2+ players)</button>
-    </div>
+        <!-- 2. Game Master Section (Create Session) -->
+        <div id="gmSection" class="section hidden">
+            <h2 class="section-title">Host Dashboard</h2>
+            <div class="card">
+                <p>Welcome, <strong><span id="gmName"></span></strong>!</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="difficultySelect">Select Difficulty</label>
+                <select id="difficultySelect">
+                    <option value="easy">Easy (1-50)</option>
+                    <option value="medium" selected>Medium (1-100)</option>
+                    <option value="hard">Hard (1-500)</option>
+                </select>
+            </div>
+            
+            <button id="createSessionButton" class="btn">Create New Game Session</button>
+            
+            <div class="card hidden" id="sessionInfo">
+                <p>Share this Session ID with players:</p>
+                <div class="session-id"><span id="sessionIdDisplay"></span></div>
+            </div>
+            
+            <div id="gmStatusMessage" class="status-message"></div>
+            
+            <h3 class="section-title">Players in Session</h3>
+            <ul id="playerList" class="player-list"></ul>
+            
+            <button id="startGameButton" class="btn btn-success" disabled>Start Game (Need 2+ players)</button>
+        </div>
 
-    <!-- 3. Player Section (Join Session) -->
-    <div id="playerSection" class="hidden">
-        <h2>Player Dashboard</h2>
-        <p>Welcome, <span id="playerName"></span>!</p>
-        <label for="sessionIdInput">Enter Session ID:</label>
-        <input type="text" id="sessionIdInput" placeholder="e.g., A1B2C3">
-        <button id="joinSessionButton">Join Game Session</button>
-        <div id="playerStatusMessage"></div>
-        <h3>Players in Session:</h3>
-        <ul id="playerListPlayer"></ul>
-    </div>
+        <!-- 3. Player Section (Join Session) -->
+        <div id="playerSection" class="section hidden">
+            <h2 class="section-title">Player Dashboard</h2>
+            <div class="card">
+                <p>Welcome, <strong><span id="playerName"></span></strong>!</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="sessionIdInput">Enter Session ID</label>
+                <input type="text" id="sessionIdInput" placeholder="e.g., A1B2C3">
+            </div>
+            
+            <button id="joinSessionButton" class="btn">Join Game Session</button>
+            <div id="playerStatusMessage" class="status-message"></div>
+            
+            <h3 class="section-title">Players in Session</h3>
+            <ul id="playerListPlayer" class="player-list"></ul>
+        </div>
 
-    <!-- 4. Game Room (Common for all players once game starts) -->
-    <div id="gameRoomSection" class="hidden">
-        <h2>Game Room</h2>
-        <p>Session: <strong><span id="gameRoomSessionId"></span></strong></p>
-        <p>Guess a number between <span id="numberRange"></span></p>
-        <p>Time Left: <span id="timer">60</span>s</p>
-        <div id="gameMessages"></div>
-        <input type="text" id="guessInput" placeholder="Enter your guess">
-        <button id="sendGuessButton">Send Guess</button>
-        <p>Attempts Left: <span id="attemptsLeft">3</span></p>
-        <div id="gameRoomStatus"></div>
+        <!-- 4. Game Room (Common for all players once game starts) -->
+        <div id="gameRoomSection" class="section hidden">
+            <h2 class="section-title">Game Room</h2>
+            
+            <div class="game-info">
+                <div class="info-item">
+                    <h3>Session ID</h3>
+                    <p id="gameRoomSessionId"></p>
+                </div>
+                <div class="info-item">
+                    <h3>Range</h3>
+                    <p id="numberRange"></p>
+                </div>
+                <div class="info-item">
+                    <h3>Time Left</h3>
+                    <p id="timer">60s</p>
+                </div>
+                <div class="info-item">
+                    <h3>Attempts Left</h3>
+                    <p id="attemptsLeft">3</p>
+                </div>
+            </div>
+            
+            <div id="gameMessages"></div>
+            
+            <div class="guess-form">
+                <input type="text" id="guessInput" placeholder="Enter your guess or chat message">
+                <button id="sendGuessButton" class="btn">Send</button>
+                <button id="leaveGameButton" class="btn btn-warning">Leave Game</button>
+            </div>
+            
+            <div id="gameRoomStatus" class="status-message"></div>
+        </div>
     </div>
 
     <!-- Include Socket.IO client library -->
@@ -137,6 +513,7 @@
 
             if (!username) {
                 statusMessage.innerText = "Please enter a username.";
+                statusMessage.className = "status-message error";
                 return;
             }
 
@@ -147,6 +524,7 @@
             currentUser = data;
             console.log("User set successfully:", data);
             statusMessage.innerText = `Welcome, ${data.username} (${data.role})!`;
+            statusMessage.className = "status-message success";
 
             if (data.role === 'gameMaster') {
                 document.getElementById('gmName').innerText = data.username;
@@ -167,7 +545,9 @@
             currentSessionId = data.sessionId;
             console.log("Session created:", data);
             document.getElementById('sessionIdDisplay').innerText = data.sessionId;
-            document.getElementById('gmStatusMessage').innerText = "Session created! Share the ID with players.";
+            document.getElementById('sessionInfo').classList.remove('hidden');
+            gmStatusMessage.innerText = "Session created! Share the ID with players.";
+            gmStatusMessage.className = "status-message success";
             
             // Update player list
             updatePlayerList('playerList', data.players);
@@ -187,6 +567,7 @@
             const sessionId = document.getElementById('sessionIdInput').value.trim();
             if (!sessionId) {
                 playerStatusMessage.innerText = "Please enter a Session ID.";
+                playerStatusMessage.className = "status-message error";
                 return;
             }
             socket.emit('joinSession', { sessionId });
@@ -196,6 +577,7 @@
             currentSessionId = data.sessionId;
             console.log("Session joined:", data);
             playerStatusMessage.innerText = "Joined session successfully!";
+            playerStatusMessage.className = "status-message success";
             updatePlayerList('playerListPlayer', data.players);
             // Wait for game to start...
         });
@@ -207,17 +589,10 @@
             const gmPlayerList = document.getElementById('playerList');
             const playerPlayerList = document.getElementById('playerListPlayer');
             if (gmPlayerList) {
-                // Assume the payload includes the updated full list or we refetch
-                // For simplicity, let's assume `data.players` is sent
                 if (data.players) {
                      updatePlayerList('playerList', data.players);
                      // Enable start button for GM if enough players
                      startGameButton.disabled = data.players.length < 2;
-                } else {
-                    // If only new player is sent, append
-                    // This requires more complex handling on backend to send full list
-                    // Simpler: backend sends full updated list with 'playerJoined'
-                    // addMessage('gameMessages', `${data.player.username} joined the game.`, 'system');
                 }
             }
             if (playerPlayerList && data.players) {
@@ -257,7 +632,7 @@
 
         // --- 6. Gameplay Logic ---
         sendGuessButton.addEventListener('click', () => {
-            const inputText = guessInput.value.trim();
+            const inputText = document.getElementById('guessInput').value.trim();
             if (!inputText || !currentSessionId) return;
 
             // Check if input is a valid integer string (guess) or just text (chat) with regex validation
@@ -265,28 +640,63 @@
                 // If it's a number, treat as guess
                 socket.emit('makeGuess', { sessionId: currentSessionId, guess: inputText });
             } else {
-                // It's text, treat as chat message
+                // Else, treat as chat message
                 socket.emit('sendChatMessage', { sessionId: currentSessionId, message: inputText });
             }
-            guessInput.value = ''; // Clear input regardless
+            document.getElementById('guessInput').value = ''; // Clear input regardless
         });
+
+        // --- Leave Game ---
+        const leaveGameButton = document.getElementById('leaveGameButton');
+        leaveGameButton && (leaveGameButton.addEventListener('click', () => {
+            if (!currentSessionId) return;
+
+            // Disable button to prevent repeated clicks
+            leaveGameButton.disabled = true;
+
+            // Emit leave request and wait for server ack so broadcasts reach the leaving client
+            socket.emit('leaveSession', { sessionId: currentSessionId });
+
+            // Optionally show local system message indicating leaving in progress
+            addMessage('gameMessages', `You are leaving session ${currentSessionId}...`, 'system');
+        }));
+
+        // Listen for server broadcast that a player left (will include the leaver)
+        socket.on('playerLeft', (data) => {
+            if (!data || !data.username) return;
+            const msg = `🚪 ${data.username} has left the game.`;
+            addMessage('gameMessages', msg, 'system');
+            // Update player lists if provided
+            if (data.players) {
+                updatePlayerList('playerList', data.players);
+                updatePlayerList('playerListPlayer', data.players);
+            }
+        });
+
+        // When server confirms we've left, disconnect and reload after a short delay
+        socket.on('leftSession', (data) => {
+            if (data && data.ok) {
+                // Small delay to ensure 'playerLeft' broadcast is rendered locally
+                setTimeout(() => {
+                    try { socket.disconnect(); } catch (e) {}
+                    location.reload();
+                }, 700);
+            }
+        });
+
         socket.on('chatMessageReceived', (data) => {
             console.log("Chat message received:", data);
             // Format the message for display
             const formattedMessage = `${data.username}: ${data.message}`;
             // Add it to the chatbox
-            console.log("Is this my message?:", data.isSelf)
-            const messageClass = data.isSelf ? "chat-self" : "chat"; // Use 'chat-self' if isSelf is true
-            addMessage('gameMessages', formattedMessage, messageClass); // Use 'chat' class
-
+            const messageClass = data.isSelf ? "chat-self" : "chat";
+            addMessage('gameMessages', formattedMessage, messageClass);
         });
 
         socket.on('guessResult', (data) => {
             console.log("Guess result:", data);
             if (data.isValid) {
                 if (data.isCorrect) {
-                    // This shouldn't happen here for the guesser, as 'gameWon' is emitted
-                    // But handle just in case
                     addMessage('gameMessages', data.message, 'win');
                 } else {
                     addMessage('gameMessages', data.message, 'guess-result');
@@ -298,7 +708,7 @@
         });
 
         socket.on('playerGuessed', (data) => {
-            // Notify other players a guess was made (without revealing the guess)
+            // Notify other players a guess was made
              addMessage('gameMessages', data.message, 'system');
         });
 
@@ -312,6 +722,7 @@
             document.getElementById('guessInput').disabled = true;
             document.getElementById('sendGuessButton').disabled = true;
             gameRoomStatus.innerText = "Game Over!";
+            gameRoomStatus.className = "status-message";
          });
 
          socket.on('gameTimeout', (data) => {
@@ -321,8 +732,8 @@
             document.getElementById('guessInput').disabled = true;
             document.getElementById('sendGuessButton').disabled = true;
             gameRoomStatus.innerText = "Game Over!";
+            gameRoomStatus.className = "status-message";
          });
-
 
         // --- 8. Error Handling ---
         socket.on('error', (data) => {
@@ -330,15 +741,18 @@
             // Display error message in the relevant section
             if (gmSection.classList.contains('hidden') === false) {
                 gmStatusMessage.innerText = "Error: " + data.message;
+                gmStatusMessage.className = "status-message error";
             } else if (playerSection.classList.contains('hidden') === false) {
                 playerStatusMessage.innerText = "Error: " + data.message;
+                playerStatusMessage.className = "status-message error";
             } else if (gameRoomSection.classList.contains('hidden') === false) {
                 gameRoomStatus.innerText = "Error: " + data.message;
+                gameRoomStatus.className = "status-message error";
             } else {
                 statusMessage.innerText = "Error: " + data.message;
+                statusMessage.className = "status-message error";
             }
         });
-
     </script>
 </body>
 </html>

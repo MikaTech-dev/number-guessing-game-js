@@ -266,7 +266,7 @@ const initializeSocket = (io) => {
       session.gameState = 'in-progress';
       session.startedAt = new Date();
       // Set timer (e.g., 60 seconds)
-      const ROUND_DURATION = 120000; // 60 seconds
+      const ROUND_DURATION = 120000; // 120 seconds
       session.roundEndTime = new Date(Date.now() + ROUND_DURATION);
 
       await session.save();
@@ -479,7 +479,7 @@ const initializeSocket = (io) => {
           isCorrect: false
         });
 
-        // Broadcast to others that a guess was made (without revealing the guess or hints)
+        // Broadcast to others that a guess was made
         socket.to(sessionId).emit('playerGuessed', {
           username: player.username,
           message: `${player.username} guessed wrongly- ${guessNum}.`
@@ -506,10 +506,74 @@ const initializeSocket = (io) => {
     });
 
     // --- Optional: Handle explicit leave session event ---
-    socket.on('leaveSession', async (data) => {
-         // Implementation for leaving a session (e.g., cleanup, notify others)
-         // This is often handled by disconnect or UI logic redirecting to lobby
-    });
+  socket.on('leaveSession', async (data) => {
+     const userId = socketToUserMap.get(socket.id);
+     if (!userId) {
+       socket.emit('error', { message: 'User not set.' });
+       return;
+     }
+
+     try {
+       const user = await User.findById(userId);
+       if (!user) {
+         socket.emit('error', { message: 'User not found.' });
+         return;
+       }
+
+       const sessionId = (data && data.sessionId) || user.sessionId;
+       if (!sessionId) {
+         socket.emit('error', { message: 'No session to leave.' });
+         return;
+       }
+
+       const session = await GameSession.findOne({ sessionId });
+       if (!session) {
+         socket.emit('error', { message: 'Session not found.' });
+         return;
+       }
+
+       // Remove player from session players list
+       const playerIndex = session.players.findIndex(p => p.playerId.toString() === userId.toString());
+       let removedPlayer = null;
+       if (playerIndex !== -1) {
+         removedPlayer = session.players.splice(playerIndex, 1)[0];
+         await session.save();
+         // Update in-memory session
+         activeSessions.set(sessionId, session);
+       }
+
+       // Update user record
+       user.sessionId = null;
+       await user.save();
+
+       // If we removed a player, notify others in the room BEFORE removing socket from room/mapping
+       if (removedPlayer) {
+         // Emit to room (including the leaving socket) so the leaving client also receives the system message
+         io.to(sessionId).emit('playerLeft', { username: removedPlayer.username, players: session.players });
+         console.log(`👋 Player left: ${removedPlayer.username} from session: ${sessionId}`);
+       }
+
+       // Cleanup socket mapping and room AFTER broadcasting so the leaving socket still receives events
+       socketToUserMap.delete(socket.id);
+       try { socket.leave(sessionId); } catch (e) {}
+
+       // If session is now empty, delete it
+       if (session.players.length === 0) {
+         try {
+           await GameSession.deleteOne({ sessionId });
+           activeSessions.delete(sessionId);
+           console.log(`🗑️ Session ${sessionId} deleted because it became empty.`);
+         } catch (delErr) {
+           console.error('Error deleting empty session:', delErr);
+         }
+       }
+
+       socket.emit('leftSession', { ok: true });
+     } catch (error) {
+       console.error('Error leaving session:', error);
+       socket.emit('error', { message: error.message || 'Failed to leave session.' });
+     }
+  });
 
   });
 };

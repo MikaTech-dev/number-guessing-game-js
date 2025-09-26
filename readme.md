@@ -21,7 +21,7 @@ A real-time multiplayer number guessing game with chat functionality.
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   cd server
+   cd number-guessing-game-js
    npm install
    ```
 
@@ -54,6 +54,7 @@ A real-time multiplayer number guessing game with chat functionality.
 - MongoDB
 - EJS
 - Mongoose
+
 
 
 

@@ -2,7 +2,7 @@
 
 A real-time multiplayer number guessing game with chat functionality.
 
-[![License: MIT](https://img.shields.io/github/license/Mikatech-Dev/guessing-game-js?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/github/license/Mikatech-Dev/guessing-game-js?style=for-the-badge&color=cyan)](https://opensource.org/licenses/MIT)
 ![Issues](https://img.shields.io/github/issues/Mikatech-Dev/guessing-game-js?style=for-the-badge&color=purple)
 ![Forks](https://img.shields.io/github/forks/MikaTech-dev/number-guessing-game-js?style=for-the-badge&color=purple)
 ![Stars](https://img.shields.io/github/stars/Mikatech-Dev/guessing-game-js?style=for-the-badge&color=purple)
@@ -54,4 +54,5 @@ A real-time multiplayer number guessing game with chat functionality.
 - MongoDB
 - EJS
 - Mongoose
+
 

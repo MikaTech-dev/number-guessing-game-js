@@ -4,455 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Number Guessing Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --success: #4cc9f0;
-            --warning: #f72585;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --border-radius: 12px;
-            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: var(--dark);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            width: 100%;
-            max-width: 800px;
-            overflow: hidden;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
-
-        .header h1 {
-            font-size: 2.2rem;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .header h1::before {
-            content: "🎮";
-        }
-
-        .section {
-            padding: 25px;
-            transition: var(--transition);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--light-gray);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: var(--border-radius);
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            background: var(--gray);
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-        }
-
-        .btn-warning:hover {
-            background: #d81159;
-        }
-
-        .btn-success {
-            background: var(--success);
-        }
-
-        .btn-success:hover {
-            background: #3bb4d8;
-        }
-
-        .card {
-            background: var(--light);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .session-id {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: 2px;
-            background: var(--light-gray);
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            margin: 15px 0;
-        }
-
-        .player-list {
-            list-style: none;
-            margin-top: 15px;
-        }
-
-        .player-list li {
-            padding: 10px 15px;
-            background: white;
-            border-radius: var(--border-radius);
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        .player-list li span {
-            font-weight: 500;
-        }
-
-        .game-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .info-item {
-            background: var(--light);
-            padding: 15px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .info-item h3 {
-            font-size: 0.9rem;
-            color: var(--gray);
-            margin-bottom: 5px;
-        }
-
-        .info-item p {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        #gameMessages {
-            height: 300px;
-            overflow-y: auto;
-            border: 2px solid var(--light-gray);
-            border-radius: var(--border-radius);
-            padding: 15px;
-            margin-bottom: 20px;
-            background: white;
-        }
-
-        .message {
-            margin: 10px 0;
-            padding: 10px 15px;
-            border-radius: 18px;
-            max-width: 80%;
-            word-wrap: break-word;
-        }
-
-        .system {
-            background: var(--light-gray);
-            color: var(--dark);
-            margin: 0 auto;
-            text-align: center;
-            font-weight: 500;
-            max-width: 100%;
-        }
-
-        .chat {
-            background: #e9e8ea;
-            color: var(--dark);
-            align-self: flex-start;
-        }
-
-        .chat-self {
-            background: var(--primary);
-            color: white;
-            align-self: flex-end;
-            margin-left: auto;
-        }
-
-        .guess-result {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
-
-        .win {
-            background: #d4edda;
-            color: #155724;
-            font-weight: 700;
-            text-align: center;
-            max-width: 100%;
-        }
-
-        .timeout {
-            background: #f8d7da;
-            color: #721c24;
-            text-align: center;
-            max-width: 100%;
-        }
-
-        .guess-form {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .guess-form input {
-            flex: 1;
-        }
-
-        .status-message {
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
-            margin-top: 15px;
-            font-weight: 500;
-        }
-
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
-        }
-
-        .success {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .section {
-                padding: 20px;
-            }
-            
-            .game-info {
-                flex-direction: column;
-            }
-            
-            .info-item {
-                width: 100%;
-            }
-            
-            .message {
-                max-width: 90%;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { 
+                        slate: { 750: '#2d3748', 850: '#1a202c', 950: '#020617' },
+                        appleBlue: '#007AFF',
+                        appleGrey: '#3a3a3c'
+                    }
+                }
             }
         }
+    </script>
+
+    <style type="text/tailwindcss">
+        /* --- Dark Mode Input Styles --- */
+        .input-field { 
+            @apply w-full p-3 bg-slate-950 border border-slate-700 rounded-lg outline-none text-slate-200 placeholder-slate-600 transition-all focus:border-appleBlue focus:ring-1 focus:ring-appleBlue; 
+        }
+
+        /* --- Buttons --- */
+        .btn { 
+            @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-appleBlue text-white font-medium transition-all hover:brightness-110 active:scale-[0.98] disabled:bg-slate-800 disabled:text-slate-600 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-blue-900/20; 
+        }
+        .btn-warning { @apply bg-red-900/80 text-red-100 border border-red-800 hover:bg-red-800; }
+        .btn-success { @apply bg-emerald-600 hover:bg-emerald-500 text-white; }
+        
+        /* --- Message Bubbles --- */
+        .message { 
+            @apply my-1.5 p-3 px-4 rounded-2xl text-[15px] leading-snug max-w-[85%] break-words shadow-sm; 
+        }
+
+        /* System Messages - SOLID Background for readability */
+        .system { 
+            @apply w-full max-w-full bg-slate-800 text-slate-400 text-center mx-auto text-xs font-semibold uppercase tracking-wide border-y border-slate-700/50 py-2 rounded-none shadow-none; 
+        }
+
+        /* Opponent Chat (iMessage Grey) */
+        .chat { 
+            @apply bg-appleGrey text-white self-start rounded-bl-sm ml-1; 
+        }
+
+        /* Self Chat (iMessage Blue) */
+        .chat-self { 
+            @apply bg-appleBlue text-white self-end ml-auto rounded-br-sm mr-1; 
+        }
+        
+        /* Guess Results - SOLID Background */
+        .guess-result { 
+            @apply w-full max-w-full bg-amber-900 text-amber-100 border-l-4 border-amber-500 text-center font-medium; 
+        }
+
+        /* Win/Timeout - SOLID Background */
+        .win { 
+            @apply w-full max-w-full bg-emerald-900 text-emerald-100 font-bold text-center border-l-4 border-emerald-500 p-4; 
+        }
+        .timeout { 
+            @apply w-full max-w-full bg-red-900 text-red-100 text-center border-l-4 border-red-500 p-4; 
+        }
+
+        /* --- Status Messages --- */
+        .status-message { @apply mt-5 p-4 rounded-lg font-medium hidden text-sm; }
+        .status-message:not(:empty) { @apply block; }
+        .status-message.error { @apply bg-red-950 text-red-200 border border-red-800; }
+        .status-message.success { @apply bg-emerald-950 text-emerald-200 border border-emerald-800; }
+
+        /* --- Dark Scrollbar --- */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #020617; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Number Guessing Game</h1>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-6 bg-black text-slate-300">
+
+    <div class="container w-full max-w-3xl bg-[#1c1c1e] rounded-3xl shadow-2xl border border-slate-800 overflow-hidden ring-1 ring-white/10">
+        
+        <div class="bg-[#1c1c1e] p-5 text-center border-b border-white/10 backdrop-blur-md sticky top-0 z-10">
+            <h1 class="text-xl font-semibold text-white tracking-tight">
+                Number Guessing Game
+            </h1>
         </div>
 
-        <!-- 1. Initial Lobby (Username/Role Selection) -->
-        <div id="lobbySection" class="section">
-            <h2 class="section-title">Lobby</h2>
-            <div class="form-group">
-                <label for="usernameInput">Your Name</label>
-                <input type="text" id="usernameInput" placeholder="Enter your name">
+        <div id="lobbySection" class="p-8 md:p-12 transition-all">
+            <h2 class="text-sm text-slate-500 font-bold mb-8 uppercase tracking-widest text-center">Lobby Configuration</h2>
+            
+            <div class="space-y-6 max-w-sm mx-auto">
+                <div>
+                    <label for="usernameInput" class="block mb-2 text-xs font-semibold text-slate-500 uppercase ml-1">Your Name</label>
+                    <input type="text" id="usernameInput" placeholder="Enter your name" class="input-field bg-[#2c2c2e] border-transparent focus:bg-[#3a3a3c]">
+                </div>
+                <div>
+                    <label for="roleSelect" class="block mb-2 text-xs font-semibold text-slate-500 uppercase ml-1">Your Role</label>
+                    <div class="relative">
+                        <select id="roleSelect" class="input-field bg-[#2c2c2e] border-transparent focus:bg-[#3a3a3c] appearance-none pr-10 cursor-pointer">
+                            <option value="player">Player</option>
+                            <option value="gameMaster">Host</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </div>
+                    </div>
+                </div>
+                <button id="joinButton" class="btn w-full mt-4">Enter Lobby</button>
             </div>
-            <div class="form-group">
-                <label for="roleSelect">Your Role</label>
-                <select id="roleSelect">
-                    <option value="player">Player</option>
-                    <option value="gameMaster">Host</option>
-                </select>
-            </div>
-            <button id="joinButton" class="btn">Join Lobby</button>
             <div id="statusMessage" class="status-message"></div>
         </div>
 
-        <!-- 2. Game Master Section (Create Session) -->
-        <div id="gmSection" class="section hidden">
-            <h2 class="section-title">Host Dashboard</h2>
-            <div class="card">
-                <p>Welcome, <strong><span id="gmName"></span></strong>!</p>
+        <div id="gmSection" class="p-8 md:p-10 hidden">
+            <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+                 <h2 class="text-lg text-white font-semibold">Host Dashboard</h2>
+                 <div class="flex items-center gap-2 bg-[#2c2c2e] px-3 py-1.5 rounded-full border border-white/5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <strong id="gmName" class="text-xs text-slate-300 font-medium"></strong>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="difficultySelect">Select Difficulty</label>
-                <select id="difficultySelect">
-                    <option value="easy">Easy (1-50)</option>
-                    <option value="medium" selected>Medium (1-100)</option>
-                    <option value="hard">Hard (1-500)</option>
-                </select>
+            <div class="max-w-md mx-auto">
+                <div class="mb-8">
+                    <label for="difficultySelect" class="block mb-2 text-xs font-semibold text-slate-500 uppercase ml-1">Select Difficulty</label>
+                    <div class="relative">
+                        <select id="difficultySelect" class="input-field bg-[#2c2c2e] border-transparent focus:bg-[#3a3a3c] appearance-none pr-10 cursor-pointer">
+                            <option value="easy">Easy (1-50)</option>
+                            <option value="medium" selected>Medium (1-100)</option>
+                            <option value="hard">Hard (1-500)</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="createSessionButton" class="btn w-full mb-8">Create New Game Session</button>
+                
+                <div id="sessionInfo" class="bg-black p-6 rounded-xl mb-8 text-center hidden border border-white/10 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                    <p class="text-slate-500 mb-3 text-[10px] font-bold uppercase tracking-widest">Session ID</p>
+                    <div class="text-4xl font-mono font-bold text-white tracking-[0.2em] select-all cursor-pointer" id="sessionIdDisplay"></div>
+                </div>
+                
+                <div id="gmStatusMessage" class="status-message"></div>
+                
+                <div class="mt-8">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 ml-1">Players in Lobby</h3>
+                    <ul id="playerList" class="space-y-2"></ul>
+                </div>
+                
+                <button id="startGameButton" class="btn btn-success w-full mt-8 shadow-emerald-900/20" disabled>Start Game</button>
             </div>
-            
-            <button id="createSessionButton" class="btn">Create New Game Session</button>
-            
-            <div class="card hidden" id="sessionInfo">
-                <p>Share this Session ID with players:</p>
-                <div class="session-id"><span id="sessionIdDisplay"></span></div>
-            </div>
-            
-            <div id="gmStatusMessage" class="status-message"></div>
-            
-            <h3 class="section-title">Players in Session</h3>
-            <ul id="playerList" class="player-list"></ul>
-            
-            <button id="startGameButton" class="btn btn-success" disabled>Start Game (Need 2+ players)</button>
         </div>
 
-        <!-- 3. Player Section (Join Session) -->
-        <div id="playerSection" class="section hidden">
-            <h2 class="section-title">Player Dashboard</h2>
-            <div class="card">
-                <p>Welcome, <strong><span id="playerName"></span></strong>!</p>
+        <div id="playerSection" class="p-8 md:p-10 hidden">
+             <div class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
+                 <h2 class="text-lg text-white font-semibold">Player Dashboard</h2>
+                 <div class="flex items-center gap-2 bg-[#2c2c2e] px-3 py-1.5 rounded-full border border-white/5">
+                    <div class="w-1.5 h-1.5 rounded-full bg-appleBlue"></div>
+                    <strong id="playerName" class="text-xs text-slate-300 font-medium"></strong>
+                </div>
             </div>
             
-            <div class="form-group">
-                <label for="sessionIdInput">Enter Session ID</label>
-                <input type="text" id="sessionIdInput" placeholder="e.g., A1B2C3">
+            <div class="max-w-md mx-auto space-y-6">
+                <div>
+                    <label for="sessionIdInput" class="block mb-2 text-xs font-semibold text-slate-500 uppercase ml-1">Enter Session ID</label>
+                    <input type="text" id="sessionIdInput" placeholder="e.g., A1B2C3" 
+                        class="input-field bg-[#2c2c2e] border-transparent focus:bg-[#3a3a3c] text-center uppercase text-xl tracking-widest font-mono font-bold placeholder-slate-600">
+                </div>
+                
+                <button id="joinSessionButton" class="btn w-full mt-2">Join Game Session</button>
+                <div id="playerStatusMessage" class="status-message"></div>
+                
+                <div class="mt-10">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 ml-1">Players Joined</h3>
+                    <ul id="playerListPlayer" class="space-y-2"></ul>
+                </div>
             </div>
-            
-            <button id="joinSessionButton" class="btn">Join Game Session</button>
-            <div id="playerStatusMessage" class="status-message"></div>
-            
-            <h3 class="section-title">Players in Session</h3>
-            <ul id="playerListPlayer" class="player-list"></ul>
         </div>
 
-        <!-- 4. Game Room (Common for all players once game starts) -->
-        <div id="gameRoomSection" class="section hidden">
-            <h2 class="section-title">Game Room</h2>
+        <div id="gameRoomSection" class="p-0 hidden bg-black flex flex-col h-[600px]">
             
-            <div class="game-info">
-                <div class="info-item">
-                    <h3>Session ID</h3>
-                    <p id="gameRoomSessionId"></p>
+            <div class="grid grid-cols-4 border-b border-white/10 bg-[#1c1c1e]">
+                <div class="p-3 text-center border-r border-white/5">
+                    <h3 class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Session</h3>
+                    <p id="gameRoomSessionId" class="text-sm font-mono font-bold text-slate-300"></p>
                 </div>
-                <div class="info-item">
-                    <h3>Range</h3>
-                    <p id="numberRange"></p>
+                <div class="p-3 text-center border-r border-white/5">
+                    <h3 class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Range</h3>
+                    <p id="numberRange" class="text-sm font-bold text-slate-300"></p>
                 </div>
-                <div class="info-item">
-                    <h3>Time Left</h3>
-                    <p id="timer">60s</p>
+                <div class="p-3 text-center border-r border-white/5">
+                    <h3 class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Time</h3>
+                    <p id="timer" class="text-sm font-bold text-red-400">60s</p>
                 </div>
-                <div class="info-item">
-                    <h3>Attempts Left</h3>
-                    <p id="attemptsLeft">3</p>
+                <div class="p-3 text-center">
+                    <h3 class="text-[9px] text-slate-500 uppercase font-bold tracking-widest mb-0.5">Tries</h3>
+                    <p id="attemptsLeft" class="text-sm font-bold text-appleBlue">3</p>
                 </div>
             </div>
             
-            <div id="gameMessages"></div>
+            <div id="gameMessages" class="flex-1 overflow-y-auto p-4 bg-black flex flex-col custom-scrollbar space-y-2"></div>
             
-            <div class="guess-form">
-                <input type="text" id="guessInput" placeholder="Enter your guess or chat message">
-                <button id="sendGuessButton" class="btn">Send</button>
-                <button id="leaveGameButton" class="btn btn-warning">Leave Game</button>
+            <div class="p-3 bg-[#1c1c1e] border-t border-white/10">
+                <div class="flex gap-2 items-end">
+                    <div class="flex-1 bg-[#2c2c2e] rounded-2xl border border-transparent focus-within:border-slate-600 focus-within:bg-[#3a3a3c] transition-all flex items-center px-4 py-2">
+                        <input type="text" id="guessInput" placeholder="Message or Guess..." 
+                            class="w-full bg-transparent outline-none text-white placeholder-slate-500 text-[15px]">
+                    </div>
+                    <button id="sendGuessButton" class="w-10 h-10 rounded-full bg-appleBlue text-white flex items-center justify-center hover:bg-blue-600 transition-colors shadow-lg flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 pl-0.5">
+                            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="mt-2 flex justify-between items-center px-1">
+                    <div id="gameRoomStatus" class="status-message !mt-0 !p-2 !text-xs flex-1 mr-4 bg-transparent border-0 !text-slate-400 !block"></div>
+                    <button id="leaveGameButton" class="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:text-red-400 transition-colors py-1">Leave Game</button>
+                </div>
             </div>
-            
-            <div id="gameRoomStatus" class="status-message"></div>
         </div>
     </div>
 
-    <!-- Include Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -501,7 +277,10 @@
             listElement.innerHTML = ''; // Clear list
             players.forEach(player => {
                 const listItem = document.createElement('li');
-                listItem.textContent = `${player.username} (Score: ${player.score}, Attempts: ${player.attemptsLeft})`;
+                // CLEAN DARK LIST ITEM
+                listItem.className = "bg-[#2c2c2e] p-3 rounded-xl flex justify-between items-center group border border-transparent hover:border-white/10 transition-colors";
+                // CLEAN BADGES
+                listItem.innerHTML = `<span class="font-medium text-slate-200 text-sm">${player.username}</span> <div class="text-[10px] font-bold flex gap-2"><span class="bg-black/50 text-slate-400 px-2 py-1 rounded border border-white/5">SCORE: ${player.score}</span> <span class="bg-blue-900/20 text-blue-400 px-2 py-1 rounded border border-blue-500/20">TRIES: ${player.attemptsLeft}</span></div>`;
                 listElement.appendChild(listItem);
             });
         }
@@ -600,7 +379,7 @@
             }
         });
 
-        // --- 5. Game Start Logic ---
+        // --- 5. Game Start Logic (FIXED TIMER) ---
         socket.on('gameStarted', (data) => {
             console.log("Game started:", data);
             document.getElementById('gameRoomSessionId').innerText = currentSessionId;
@@ -611,23 +390,25 @@
             
             addMessage('gameMessages', "🏁 Game Started! Good luck!", 'system');
             
-            // Start timer
-            let timeLeft = 60; // Default or get from data.roundEndTime
-            if (data.roundEndTime) {
-                 const endTime = new Date(data.roundEndTime).getTime();
-                 const now = new Date().getTime();
-                 timeLeft = Math.floor((endTime - now) / 1000);
-            }
-            document.getElementById('timer').innerText = timeLeft;
+            const endTime = new Date(data.roundEndTime).getTime(); 
+            
+            if (timerInterval) clearInterval(timerInterval);
 
-            clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('timer').innerText = timeLeft;
-                if (timeLeft <= 0) {
+            const updateTimer = () => {
+                const now = Date.now();
+                const distance = endTime - now;
+                const secondsLeft = Math.floor(distance / 1000);
+
+                if (secondsLeft >= 0) {
+                    document.getElementById('timer').innerText = secondsLeft + "s";
+                } else {
+                    document.getElementById('timer').innerText = "0s";
                     clearInterval(timerInterval);
                 }
-            }, 1000);
+            };
+
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 100);
         });
 
         // --- 6. Gameplay Logic ---

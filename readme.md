@@ -10,27 +10,31 @@ A real-time multiplayer number guessing game with chat functionality.
 
 ## Features
 
-- Game Master creates sessions with difficulty levels (Easy: 1-50, Medium: 1-100, Hard: 1-500)
-- Players join sessions using session ID
-- Smart hints system after each guess (temperature and directional)
-- In-game chat for communication
-- Score tracking and winner announcement
+- User creation/registration
+- Difficulty levels (Easy: 1-50, Medium: 1-100, Hard: 1-500)
+- Randomly generated session codes which can be used to join game rooms
+- Player count tracking per session/game room
+- Directional and temperature based hinting
+- Server allows users to chat while to game goes on
+- Users allowed to leave specific rooms
 
 ## Installation
 
 1. Clone the repository
+   ```bash
+   git clone https://github.com/MikaTech-dev/number-guessing-game-js.git
+   ```
 2. Install dependencies:
    ```bash
    cd number-guessing-game-js
-   npm install
+   npm i
    ```
 
 ## Running the Application
 
-1. Set up `.env` file with MongoDB connection string:
-   ```
-   MONGO_URI=your_mongodb_connection_string
-   PORT=3000
+1. Set up `.env` & dont forget to add your MongoDB connection string:
+   ```bash
+   cp .env.example .env
    ```
 2. Start the server:
    ```bash
@@ -40,16 +44,16 @@ A real-time multiplayer number guessing game with chat functionality.
 
 ## Usage
 
-1. Enter username and select role (Player/Game Master)
-2. Game Master creates session and shares ID
+1. Enter username and select role (Player/Host)
+2. Host creates session and shares ID
 3. Players join using the session ID
-4. Game Master starts the game when ready
-5. Guess the number or chat with other players
+4. Host starts the game when ready
+5. Guess the number & chat with other players
 
-## Technology Stack
+## Tech Stack
 
 - Node.js
-- Express
+- Express.js
 - Socket.IO
 - MongoDB
 - EJS
